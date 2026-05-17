@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { register, login, refresh, logout, me, debugCookies } from "../controllers/authController.js";
+import { register, login, refresh, logout, me } from "../controllers/authController.js";
 import { requireAuth, requireRole } from "../middleware/auth.js";
 
 const router = Router();
@@ -43,12 +43,6 @@ router.post("/refresh", refresh);
  * Logout (clears refresh cookie)
  */
 router.post("/logout", logout);
-
-/**
- * Debug route: GET /api/auth/debug-cookies
- * Returns cookies received by backend (for debugging cookie issues).
- */
-router.get("/debug-cookies", debugCookies);
 
 export default router;
 

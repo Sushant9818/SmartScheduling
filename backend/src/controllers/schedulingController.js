@@ -3,9 +3,14 @@ import { findSlots, rankSlots } from "../services/schedulingService.js";
 export async function suggestSlots(req, res) {
   try {
     const { clientId, therapistId, from, to, sessionMinutes } = req.body;
+    const effectiveClientId = req.user?.role === "client" ? req.user.clientId : clientId;
+
+    if (!effectiveClientId) {
+      return res.status(403).json({ message: "Client profile not found for this user" });
+    }
 
     const { client, slots } = await findSlots({
-      clientId,
+      clientId: effectiveClientId,
       therapistId,
       from: new Date(from),
       to: new Date(to),
