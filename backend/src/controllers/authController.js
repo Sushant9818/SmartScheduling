@@ -50,9 +50,10 @@ function signRefreshToken(user) {
 function setRefreshCookie(res, token) {
   // Cookie settings for local dev (http://localhost:3000 -> http://localhost:5001)
   // httpOnly cookie stored by browser; must be set on the login response (Set-Cookie).
+  const isProduction = process.env.NODE_ENV === "production";
   const cookieOptions = {
     httpOnly: true,
-    secure: false, // false for local http, true for production https
+    secure: isProduction,
     sameSite: "lax", // localhost cross-port is same-site
     path: REFRESH_COOKIE_PATH,
     maxAge: REFRESH_DAYS * 24 * 60 * 60 * 1000, // 7 days
@@ -170,9 +171,7 @@ export async function login(req, res) {
     const token = signAccessToken(user);
     await issueRefreshToken(user, res);
 
-    // Temporary debug: confirm Set-Cookie is present on login response.
     const setCookieHeader = res.getHeader("set-cookie");
-    console.log("[auth] login set-cookie:", setCookieHeader ?? "(none)");
     if (process.env.NODE_ENV !== "production") {
       console.debug("[auth] login: Access token issued, refreshToken cookie being set");
       if (setCookieHeader) {
@@ -331,13 +330,3 @@ export async function me(req, res) {
   }
 }
 
-/**
- * Debug route: GET /api/auth/debug-cookies
- * Returns cookies and raw cookie header for debugging.
- */
-export async function debugCookies(req, res) {
-  return res.json({
-    cookieHeader: req.headers.cookie || null,
-    cookies: req.cookies || {},
-  });
-}
