@@ -10,13 +10,22 @@ import { requireAuth, requireRole } from "../middleware/auth.js";
 
 const router = Router();
 
-router.post("/", createTherapist);
-router.get("/", getTherapists);
-router.get("/:id", getTherapistById);
-router.put("/:id/availability", updateAvailability);
-router.post("/:id/time-off", addTimeOff);
+function requireTherapistOwnerOrAdmin(req, res, next) {
+  if (req.user?.role === "admin") {
+    return next();
+  }
+
+  if (req.user?.role === "therapist" && req.user.therapistId === req.params.id) {
+    return next();
+  }
+
+  return res.status(403).json({ message: "Forbidden" });
+}
+
+router.get("/", requireAuth, requireRole("admin", "therapist", "client"), getTherapists);
+router.get("/:id", requireAuth, requireRole("admin", "therapist", "client"), getTherapistById);
 router.post("/", requireAuth, requireRole("admin"), createTherapist);
-router.put("/:id/availability", requireAuth, requireRole("admin", "therapist"), updateAvailability);
-router.post("/:id/time-off", requireAuth, requireRole("admin", "therapist"), addTimeOff);
+router.put("/:id/availability", requireAuth, requireTherapistOwnerOrAdmin, updateAvailability);
+router.post("/:id/time-off", requireAuth, requireTherapistOwnerOrAdmin, addTimeOff);
 
 export default router;

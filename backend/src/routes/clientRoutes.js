@@ -5,12 +5,25 @@ import {
   getClientById,
   updateClientPreferences
 } from "../controllers/clientController.js";
+import { requireAuth, requireRole } from "../middleware/auth.js";
 
 const router = Router();
 
-router.post("/", createClient);
-router.get("/", listClients);
-router.get("/:id", getClientById);
-router.put("/:id/preferences", updateClientPreferences);
+function requireClientOwnerOrAdmin(req, res, next) {
+  if (req.user?.role === "admin") {
+    return next();
+  }
+
+  if (req.user?.role === "client" && req.user.clientId === req.params.id) {
+    return next();
+  }
+
+  return res.status(403).json({ message: "Forbidden" });
+}
+
+router.post("/", requireAuth, requireRole("admin"), createClient);
+router.get("/", requireAuth, requireRole("admin"), listClients);
+router.get("/:id", requireAuth, requireClientOwnerOrAdmin, getClientById);
+router.put("/:id/preferences", requireAuth, requireClientOwnerOrAdmin, updateClientPreferences);
 
 export default router;
