@@ -7,6 +7,20 @@ function hashToken(token) {
   return crypto.createHash("sha256").update(token).digest("hex");
 }
 
+function revokeRefreshTokens(user) {
+  user.refreshTokenHash = null;
+  user.refreshTokenExpiresAt = null;
+}
+
+function clearRefreshCookie(res) {
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: false,
+    sameSite: "lax",
+    path: "/"
+  });
+}
+
 export async function requestPasswordReset(req, res) {
   const { email } = req.body;
   const user = await User.findOne({ email: email?.toLowerCase().trim() });
@@ -51,6 +65,7 @@ export async function resetPassword(req, res) {
   user.passwordHash = await bcrypt.hash(newPassword, 10);
   user.resetTokenHash = null;
   user.resetTokenExpiresAt = null;
+  revokeRefreshTokens(user);
   await user.save();
 
   res.json({ message: "Password updated successfully" });
@@ -75,7 +90,7 @@ export async function changePassword(req, res) {
     return res.status(401).json({ message: "Not authenticated" });
   }
 
-  const user = await User.findById(userId).select("passwordHash");
+  const user = await User.findById(userId).select("passwordHash refreshTokenHash refreshTokenExpiresAt");
   if (!user) {
     return res.status(401).json({ message: "User not found" });
   }
@@ -86,7 +101,9 @@ export async function changePassword(req, res) {
   }
 
   user.passwordHash = await bcrypt.hash(newPassword, 10);
+  revokeRefreshTokens(user);
   await user.save();
+  clearRefreshCookie(res);
 
   res.json({ message: "Password changed successfully" });
 }
