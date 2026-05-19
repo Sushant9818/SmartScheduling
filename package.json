@@ -1,0 +1,11 @@
+{
+  "name": "smart-scheduling-system",
+  "private": true,
+  "description": "Monorepo: Next.js frontend in ./frontend, Node API in ./backend",
+  "scripts": {
+    "dev": "npm run dev --prefix frontend",
+    "build": "npm run build --prefix frontend",
+    "start": "npm run start --prefix frontend",
+    "vercel-build": "npm run build --prefix frontend"
+  }
+}

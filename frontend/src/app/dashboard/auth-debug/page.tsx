@@ -28,38 +28,40 @@ export default function AuthDebugPage() {
   const handleDebugCookies = async () => {
     setDebugCookiesResult("Loading...");
     const res = await getDebugCookies();
-    setDebugCookiesResult(
-      res.ok && res.data
-        ? JSON.stringify(
-            {
-              cookieNames: Object.keys(res.data.cookies || {}),
-              hasRefreshToken: "refreshToken" in (res.data.cookies || {}),
-            },
-            null,
-            2
-          )
-        : `Error: ${res.error ?? res.status}`
-    );
+    if (res.ok && res.data) {
+      setDebugCookiesResult(
+        JSON.stringify(
+          {
+            cookieNames: Object.keys(res.data.cookies || {}),
+            hasRefreshToken: "refreshToken" in (res.data.cookies || {}),
+          },
+          null,
+          2
+        )
+      );
+    } else {
+      setDebugCookiesResult(`Error: ${!res.ok ? res.error : "unknown"} (${!res.ok ? res.status : ""})`);
+    }
   };
 
   const handleRefresh = async () => {
     setRefreshResult("Loading...");
     const res = await refresh();
-    setRefreshResult(
-      res.ok && res.data?.token
-        ? `OK – new token (first 20 chars): ${res.data.token.substring(0, 20)}...`
-        : `Error: ${res.error ?? res.status}`
-    );
+    if (res.ok && res.data?.token) {
+      setRefreshResult(`OK – new token (first 20 chars): ${res.data.token.substring(0, 20)}...`);
+    } else {
+      setRefreshResult(`Error: ${!res.ok ? res.error : "unknown"} (${!res.ok ? res.status : ""})`);
+    }
   };
 
   const handleSessions = async () => {
     setSessionsResult("Loading...");
-    const res = await getSessions();
-    setSessionsResult(
-      res.ok && Array.isArray(res.data)
-        ? `OK – ${res.data.length} session(s)`
-        : `Error: ${res.error ?? res.status}`
-    );
+    try {
+      const list = await getSessions();
+      setSessionsResult(`OK – ${list.length} session(s)`);
+    } catch (e) {
+      setSessionsResult(`Error: ${e instanceof Error ? e.message : "Failed"}`);
+    }
   };
 
   return (

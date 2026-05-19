@@ -1,0 +1,8 @@
+# Legacy static HTML app (not the Next.js app)
+app/
+
+# Backend API (deploy separately)
+backend/
+
+# Dependencies at repo root (if any)
+node_modules/
