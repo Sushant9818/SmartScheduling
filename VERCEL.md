@@ -2,22 +2,25 @@
 
 The Next.js app lives in **`frontend/`**. The repo root also has a legacy static `app/` folder (HTML) — do not deploy that as the main site.
 
-## Recommended (simplest)
+## Required: Root Directory = `frontend`
 
-1. In [Vercel Project Settings](https://vercel.com/docs/projects/overview#project-settings) → **General** → **Root Directory**, set:
-   ```
-   frontend
-   ```
+1. [Vercel Project Settings](https://vercel.com/sushant9818s-projects/smart-scheduling/settings) → **General** → **Root Directory** → set to `frontend` and save.
 2. **Framework Preset:** Next.js (auto-detected).
 3. **Build Command:** `npm run build` (default).
 4. **Environment variables** (Production):
    - `NEXT_PUBLIC_API_BASE_URL` = your API URL, e.g. `https://your-api.example.com/api`
 
-Redeploy after changing Root Directory.
+Do **not** use a root-level legacy `vercel.json` with `builds` — it deploys only a `/404` page. The Next.js app lives in `frontend/src/app/`.
 
-## Alternative (build from repo root)
+Redeploy after changing Root Directory (push to `main` or `cd frontend && vercel deploy --prod`).
 
-If you keep the repository root as the Vercel root, the root `vercel.json` uses `@vercel/next` with `frontend/package.json`. Ensure `.vercelignore` excludes `app/` and `backend/`.
+## Project link
+
+- Vercel project: **smart-scheduling** (`prj_ASyBdrqARMtSIL1ULuK7SEaAPtvu`)
+- Production URL: https://smart-scheduling-eta.vercel.app
+- CLI link files: `frontend/.vercel/project.json` and `.vercel/project.json`
+
+Duplicate projects (**smart-scheduling-baxq**, **smart-scheduling-cmhs**) can be removed in the Vercel dashboard to avoid confusion.
 
 ## 404 troubleshooting
 
