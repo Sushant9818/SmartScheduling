@@ -10,7 +10,9 @@ The Next.js app lives in **`frontend/`**. The repo root also has a legacy static
 4. **Environment variables** (Production):
    - `NEXT_PUBLIC_API_BASE_URL` = your API URL, e.g. `https://your-api.example.com/api`
 
-Do **not** use a root-level legacy `vercel.json` with `builds` — it deploys only a `/404` page. The Next.js app lives in `frontend/src/app/`.
+Do **not** use a root-level legacy `vercel.json` with `builds` — it deploys only a `/404` page.
+
+In `.vercelignore`, use `/app/` (repo-root static HTML only). The pattern `app/` incorrectly excludes `frontend/src/app/`.
 
 Redeploy after changing Root Directory (push to `main` or `cd frontend && vercel deploy --prod`).
 
