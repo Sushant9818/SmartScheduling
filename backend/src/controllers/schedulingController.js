@@ -2,7 +2,13 @@ import { findSlots, rankSlots } from "../services/schedulingService.js";
 
 export async function suggestSlots(req, res) {
   try {
-    const { clientId, therapistId, from, to, sessionMinutes } = req.body;
+    const requestedClientId = req.body.clientId;
+    const clientId = req.user?.role === "client" ? req.user.clientId : requestedClientId;
+    if (!clientId) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    const { therapistId, from, to, sessionMinutes } = req.body;
 
     const { client, slots } = await findSlots({
       clientId,

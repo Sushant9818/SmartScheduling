@@ -1,8 +1,20 @@
 import Therapist from "../models/Therapist.js";
 
+function canManageTherapist(req, therapistId) {
+  if (req.user?.role === "admin") return true;
+  return req.user?.role === "therapist" && req.user?.therapistId === String(therapistId);
+}
+
 export async function createTherapist(req, res) {
   try {
-    const therapist = await Therapist.create(req.body);
+    const { name, email, specialties, weeklyAvailability, timeOff } = req.body;
+    const therapist = await Therapist.create({
+      name,
+      email,
+      specialties: Array.isArray(specialties) ? specialties : [],
+      weeklyAvailability: Array.isArray(weeklyAvailability) ? weeklyAvailability : [],
+      timeOff: Array.isArray(timeOff) ? timeOff : []
+    });
     res.status(201).json(therapist);
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -30,6 +42,10 @@ export async function getTherapistById(req, res) {
 
 export async function updateAvailability(req, res) {
   try {
+    if (!canManageTherapist(req, req.params.id)) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
     const { weeklyAvailability } = req.body;
     const therapist = await Therapist.findByIdAndUpdate(
       req.params.id,
@@ -45,6 +61,10 @@ export async function updateAvailability(req, res) {
 
 export async function addTimeOff(req, res) {
   try {
+    if (!canManageTherapist(req, req.params.id)) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
     const { start, end, reason } = req.body;
     const therapist = await Therapist.findById(req.params.id);
     if (!therapist) return res.status(404).json({ message: "Therapist not found" });
