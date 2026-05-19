@@ -1,6 +1,12 @@
 import { defineConfig, devices } from "@playwright/test";
+import path from "path";
 
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000";
+
+// Keep browsers in the project so CI and local runs share the same path
+process.env.PLAYWRIGHT_BROWSERS_PATH =
+  process.env.PLAYWRIGHT_BROWSERS_PATH ??
+  path.join(__dirname, "node_modules", ".playwright-browsers");
 
 export default defineConfig({
   testDir: "./e2e",
@@ -14,9 +20,18 @@ export default defineConfig({
     trace: "on-first-retry",
     screenshot: "only-on-failure",
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  projects: [
+    {
+      name: "chromium",
+      use: {
+        ...devices["Desktop Chrome"],
+        // Prefer system Chrome when Playwright cache path differs (e.g. Cursor sandbox)
+        ...(process.env.PW_USE_SYSTEM_CHROME === "1" ? { channel: "chrome" as const } : {}),
+      },
+    },
+  ],
   webServer: {
-    command: "npm run dev",
+    command: "npx next dev --hostname 127.0.0.1 --port 3000",
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
