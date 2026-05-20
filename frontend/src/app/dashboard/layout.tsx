@@ -17,6 +17,21 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useAuth } from "@/context/AuthProvider";
 import { BackendStatusBadge } from "@/components/BackendStatusBadge";
 import { Calendar, Menu, Search, Bell, LogOut, User } from "lucide-react";
+import type { Role } from "@/lib/auth";
+
+function DashboardSidebar({ role, onNavigate }: { role: Role; onNavigate: () => void }) {
+  return (
+    <aside className="flex h-full w-64 flex-col border-r bg-card">
+      <div className="flex h-14 items-center gap-2 border-b px-4">
+        <Calendar className="h-6 w-6 text-primary" />
+        <span className="font-semibold">Smart Scheduling</span>
+      </div>
+      <div className="flex-1 overflow-auto py-4">
+        <SidebarNav role={role} onNavigate={onNavigate} />
+      </div>
+    </aside>
+  );
+}
 
 export default function DashboardLayout({
   children,
@@ -27,29 +42,13 @@ export default function DashboardLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const Sidebar = () => {
-    if (!user) return null;
-
-    return (
-      <aside className="flex h-full w-64 flex-col border-r bg-card">
-        <div className="flex h-14 items-center gap-2 border-b px-4">
-          <Calendar className="h-6 w-6 text-primary" />
-          <span className="font-semibold">Smart Scheduling</span>
-        </div>
-        <div className="flex-1 overflow-auto py-4">
-          <SidebarNav role={user.role} onNavigate={() => setSidebarOpen(false)} />
-        </div>
-      </aside>
-    );
-  };
-
   return (
     <ProtectedRoute>
       {user ? (
         <div className="flex min-h-screen">
           {/* Desktop sidebar */}
           <div className="hidden lg:fixed lg:inset-y-0 lg:z-30 lg:flex lg:w-64 lg:flex-col">
-            <Sidebar />
+            <DashboardSidebar role={user.role} onNavigate={() => setSidebarOpen(false)} />
           </div>
           {/* Mobile sheet: SheetTrigger must be inside Sheet */}
           <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
@@ -100,7 +99,7 @@ export default function DashboardLayout({
               <main className="flex-1 p-4 md:p-6">{children}</main>
             </div>
             <SheetContent side="left" className="p-0 w-64">
-              <Sidebar />
+              <DashboardSidebar role={user.role} onNavigate={() => setSidebarOpen(false)} />
             </SheetContent>
           </Sheet>
         </div>
