@@ -80,7 +80,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<AuthState>(INITIAL_AUTH_STATE);
   const [mounted, setMounted] = useState(false);
   const accessTokenRef = useRef<string | null>(state.accessToken);
-  accessTokenRef.current = state.accessToken;
+
+  useEffect(() => {
+    accessTokenRef.current = state.accessToken;
+  }, [state.accessToken]);
 
   // After mount: restore auth from localStorage so client-only APIs are used only on client.
   useEffect(() => {
@@ -93,6 +96,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setAccessTokenHandlers(
       () => accessTokenRef.current,
       (token: string) => {
+        accessTokenRef.current = token;
         setState((s) => ({ ...s, accessToken: token }));
       }
     );
@@ -104,6 +108,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     clearRefreshCookieOnServer();
     clearAuth();
+    accessTokenRef.current = null;
     queryClient.clear();
     setState({ user: null, accessToken: null, isLoading: false, isLoggedIn: false, backendStatus: "unknown" });
     router.replace("/login");
@@ -135,6 +140,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const refreshRes = await apiRefresh();
     if (refreshRes.ok && refreshRes.data?.token) {
       const newToken = refreshRes.data.token;
+      // Make the token available to the immediate /auth/me call before React state commits.
+      accessTokenRef.current = newToken;
       // Store new access token in state (in-memory).
       setState((s) => ({ ...s, accessToken: newToken }));
 
@@ -166,6 +173,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.debug("[AuthProvider] refreshMe: refresh failed, clearing auth");
     }
     clearAuth();
+    accessTokenRef.current = null;
     setState({ user: null, accessToken: null, isLoading: false, isLoggedIn: false, backendStatus: "unknown" });
     router.replace("/login");
   }, [router]);
@@ -192,6 +200,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           userName: mock.userName,
           userEmail: mock.email,
         });
+        accessTokenRef.current = mockToken;
         setState((s) => ({
           ...s,
           user: { userId: mock.userId, role: mock.role, userName: mock.userName, userEmail: mock.email },
@@ -225,6 +234,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           userName: user.name ?? "",
           userEmail: user.email ?? "",
         });
+        accessTokenRef.current = token;
         setState({
           user: { userId: String(user.id), role: roleNorm, userName: user.name ?? "", userEmail: user.email ?? "" },
           accessToken: token, // Store in-memory for http.ts
@@ -264,6 +274,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       /* ignore */
     }
     clearAuth();
+    accessTokenRef.current = null;
     queryClient.clear();
     setState({ user: null, accessToken: null, isLoading: false, isLoggedIn: false, backendStatus: "unknown" });
     router.replace("/login");
