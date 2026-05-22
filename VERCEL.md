@@ -20,9 +20,11 @@ Redeploy after changing Root Directory (push to `main` or `cd frontend && vercel
 
 - Vercel project: **smart-scheduling** (`prj_ASyBdrqARMtSIL1ULuK7SEaAPtvu`)
 - Production URL: https://smart-scheduling-eta.vercel.app
-- CLI link files: `frontend/.vercel/project.json` and `.vercel/project.json`
+- CLI link files: `.vercel/project.json` (deploy from repo root; Root Directory is `frontend`)
 
-Duplicate projects (**smart-scheduling-baxq**, **smart-scheduling-cmhs**) can be removed in the Vercel dashboard to avoid confusion.
+**Do not use** https://smart-scheduling.vercel.app — that domain belongs to another Vercel team (“Mahesh’s projects”), not this app.
+
+Duplicate projects (**smart-scheduling-baxq**, **smart-scheduling-cmhs**) had their `*.vercel.app` domains removed to avoid confusion; delete those projects in the [Vercel dashboard](https://vercel.com/sushant9818s-projects) if you no longer need them.
 
 ## 404 troubleshooting
 

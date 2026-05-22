@@ -1,0 +1,36 @@
+# Render Blueprint — Smart Scheduling API (Node/Express in backend/)
+# Dashboard: https://dashboard.render.com
+# After deploy, set NEXT_PUBLIC_API_BASE_URL on Vercel to https://<your-service>.onrender.com/api
+
+services:
+  - type: web
+    name: smart-scheduling-api
+    runtime: node
+    rootDir: backend
+    plan: free
+    region: oregon
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: FRONTEND_URL
+        value: https://smart-scheduling-eta.vercel.app
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: REFRESH_TOKEN_SECRET
+        generateValue: true
+      - key: EMAIL_HOST
+        sync: false
+      - key: EMAIL_PORT
+        value: "587"
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASS
+        sync: false
+      - key: EMAIL_FROM
+        sync: false

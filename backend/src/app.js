@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import { getCorsOptions } from "./config/cors.js";
 
 import therapistRoutes from "./routes/therapistRoutes.js";
 import clientRoutes from "./routes/clientRoutes.js";
@@ -15,24 +16,8 @@ import publicRoutes from "./routes/publicRoutes.js";
 
 const app = express();
 
-// CORS (local dev): must be EXACT origin + credentials true for cookies.
-// IMPORTANT: Do NOT use "*" when credentials: true
-//
-// Refresh-cookie verification checklist (browser):
-// 1) After login: in Network tab check response has Set-Cookie header for refreshToken.
-// 2) DevTools → Application → Cookies → http://localhost:5001 → refreshToken should exist.
-// 3) POST /api/auth/refresh: Request Headers should include Cookie: refreshToken=...
-// 4) After access token expiry: protected route returns 401 TOKEN_EXPIRED → http.ts refresh + retry → request succeeds.
-const corsOptions = {
-  origin: "http://localhost:3000",
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-};
-
+const corsOptions = getCorsOptions();
 app.use(cors(corsOptions));
-
-// ✅ Preflight support - must also allow credentials with same options
 app.options("*", cors(corsOptions));
 
 // ✅ cookieParser MUST be before routes (so req.cookies is populated)

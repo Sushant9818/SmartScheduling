@@ -47,17 +47,19 @@ function signRefreshToken(user) {
   );
 }
 
-function setRefreshCookie(res, token) {
-  // Cookie settings for local dev (http://localhost:3000 -> http://localhost:5001)
-  // httpOnly cookie stored by browser; must be set on the login response (Set-Cookie).
-  const cookieOptions = {
+function refreshCookieOptions() {
+  const isProd = process.env.NODE_ENV === "production";
+  return {
     httpOnly: true,
-    secure: false, // false for local http, true for production https
-    sameSite: "lax", // localhost cross-port is same-site
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
     path: REFRESH_COOKIE_PATH,
-    maxAge: REFRESH_DAYS * 24 * 60 * 60 * 1000, // 7 days
+    maxAge: REFRESH_DAYS * 24 * 60 * 60 * 1000,
   };
-  
+}
+
+function setRefreshCookie(res, token) {
+  const cookieOptions = refreshCookieOptions();
   res.cookie("refreshToken", token, cookieOptions);
   
   if (process.env.NODE_ENV !== "production") {
@@ -298,12 +300,8 @@ export async function logout(req, res) {
       );
     }
     // Clear cookie with same options used when setting it
-    res.clearCookie("refreshToken", {
-      httpOnly: true,
-      secure: false, // must match setRefreshCookie
-      sameSite: "lax", // must match setRefreshCookie
-      path: REFRESH_COOKIE_PATH, // must match setRefreshCookie
-    });
+    const { maxAge: _maxAge, ...clearOpts } = refreshCookieOptions();
+    res.clearCookie("refreshToken", clearOpts);
     return res.json({ message: "Logged out" });
   } catch (err) {
     return res.status(400).json({ message: err.message });

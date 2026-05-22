@@ -5,6 +5,7 @@ dotenv.config();
 import http from "http";
 import app from "./app.js";
 import { connectDB } from "./config/db.js";
+import { getSocketCorsOptions } from "./config/cors.js";
 import { Server } from "socket.io";
 
 // Port: set in backend/.env (e.g. PORT=5001). Fallback used if .env not loaded.
@@ -27,7 +28,7 @@ async function startServer() {
   const server = http.createServer(app);
 
   const io = new Server(server, {
-    cors: { origin: "*" } // for dev; lock down later
+    cors: getSocketCorsOptions(),
   });
 
   // make io available in controllers: req.app.get("io")
@@ -39,8 +40,8 @@ async function startServer() {
     socket.on("disconnect", () => {});
   });
 
-  server.listen(PORT, () => {
-    console.log(`API listening on http://localhost:${PORT}`);
+  server.listen(PORT, "0.0.0.0", () => {
+    console.log(`API listening on port ${PORT}`);
   });
 }
 
