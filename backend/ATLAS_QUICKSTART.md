@@ -2,6 +2,8 @@
 
 Render **cannot** run `mongodb://localhost:27017`. You need **MongoDB Atlas** (free).
 
+**Common cause:** `backend/.env` was committed to GitHub with a localhost URL. Render loaded that file on deploy. The repo no longer tracks `backend/.env`; set `MONGO_URI` in the **Render Dashboard** (see step 5).
+
 ## Step 1 — Atlas cluster
 
 1. Go to https://www.mongodb.com/cloud/atlas/register

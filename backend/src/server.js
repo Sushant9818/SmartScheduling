@@ -1,6 +1,12 @@
-// Load .env FIRST before any other imports that might use env vars
+// Load backend/.env for local dev only (file must not be committed; Render uses Dashboard env)
 import dotenv from "dotenv";
-dotenv.config();
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+if (process.env.NODE_ENV !== "production") {
+  dotenv.config({ path: path.join(__dirname, "../.env") });
+}
 
 import http from "http";
 import app from "./app.js";
@@ -13,10 +19,10 @@ const PORT = Number(process.env.PORT) || 5001;
 
 // Validate required env vars AFTER dotenv.config() has run
 if (!process.env.JWT_SECRET || String(process.env.JWT_SECRET).trim() === "") {
-  throw new Error("JWT_SECRET must be set in backend/.env");
+  throw new Error("JWT_SECRET must be set (backend/.env locally or Render Environment)");
 }
 if (!process.env.REFRESH_TOKEN_SECRET || String(process.env.REFRESH_TOKEN_SECRET).trim() === "") {
-  throw new Error("REFRESH_TOKEN_SECRET must be set in backend/.env");
+  throw new Error("REFRESH_TOKEN_SECRET must be set (backend/.env locally or Render Environment)");
 }
 if (process.env.JWT_SECRET === process.env.REFRESH_TOKEN_SECRET) {
   throw new Error("JWT_SECRET and REFRESH_TOKEN_SECRET must be different values");
