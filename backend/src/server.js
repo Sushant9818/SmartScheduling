@@ -11,22 +11,13 @@ if (process.env.NODE_ENV !== "production") {
 import http from "http";
 import app from "./app.js";
 import { connectDB } from "./config/db.js";
+import { validateRequiredEnv } from "./config/env.js";
 import { getSocketCorsOptions } from "./config/cors.js";
 import { Server } from "socket.io";
 
-// Port: set in backend/.env (e.g. PORT=5001). Fallback used if .env not loaded.
 const PORT = Number(process.env.PORT) || 5001;
 
-// Validate required env vars AFTER dotenv.config() has run
-if (!process.env.JWT_SECRET || String(process.env.JWT_SECRET).trim() === "") {
-  throw new Error("JWT_SECRET must be set (backend/.env locally or Render Environment)");
-}
-if (!process.env.REFRESH_TOKEN_SECRET || String(process.env.REFRESH_TOKEN_SECRET).trim() === "") {
-  throw new Error("REFRESH_TOKEN_SECRET must be set (backend/.env locally or Render Environment)");
-}
-if (process.env.JWT_SECRET === process.env.REFRESH_TOKEN_SECRET) {
-  throw new Error("JWT_SECRET and REFRESH_TOKEN_SECRET must be different values");
-}
+validateRequiredEnv();
 
 async function startServer() {
   await connectDB();
