@@ -1,5 +1,6 @@
 # Secrets — never commit
 backend/.env
+backend/render.env
 .env
 .env.local
 *.pem
