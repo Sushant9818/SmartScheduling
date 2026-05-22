@@ -122,9 +122,9 @@ export async function logout() {
   return post<{ message?: string }>("/auth/logout", {});
 }
 
-/** GET /api/auth/debug-cookies – returns cookies received by backend (for auth debugging). Use credentials so cookie is sent. */
+/** GET /api/auth/debug-cookies - returns safe cookie metadata for auth debugging. */
 export async function getDebugCookies() {
-  return get<{ cookieHeader: string | null; cookies: Record<string, string> }>("/auth/debug-cookies");
+  return get<{ cookieNames: string[]; hasRefreshToken: boolean }>("/auth/debug-cookies");
 }
 
 /** POST /api/password/change – change password for logged-in user. Requires Authorization: Bearer <token>. Body: { currentPassword, newPassword }. */
