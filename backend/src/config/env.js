@@ -9,8 +9,9 @@ export function validateRequiredEnv() {
     console.error("[env] Missing required variables:", missing.join(", "));
     if (process.env.NODE_ENV === "production") {
       console.error(
-        "[env] Render → your service → Environment → Add each variable, then Save and deploy.\n" +
-          "[env] Guide: backend/RENDER_ENV_SETUP.md (use 'Add from .env' with render.env)"
+        "[env] Fix: cd backend && npm run setup:render-env\n" +
+          "[env]     Edit render.env (set MONGO_URI), then Render → Environment → Add from .env\n" +
+          "[env]     Guide: backend/TROUBLESHOOTING_DEPLOY.md"
       );
     } else {
       console.error("[env] Local: copy backend/.env.example to backend/.env and fill values.");

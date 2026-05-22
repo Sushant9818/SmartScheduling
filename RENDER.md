@@ -3,6 +3,9 @@
 Frontend: **Vercel** (`frontend/`) — https://smart-scheduling-eta.vercel.app  
 API: **Render** (`backend/`) — use `render.yaml` or create a **Web Service** manually.
 
+**Deploy failing on start?** → [`backend/TROUBLESHOOTING_DEPLOY.md`](backend/TROUBLESHOOTING_DEPLOY.md)  
+**One command:** `cd backend && npm run setup:render-env` → edit `MONGO_URI` → Render → **Add from .env**
+
 ## Quick fix checklist (common Render failures)
 
 | Issue | Fix |
