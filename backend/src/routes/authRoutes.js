@@ -46,7 +46,7 @@ router.post("/logout", logout);
 
 /**
  * Debug route: GET /api/auth/debug-cookies
- * Returns cookies received by backend (for debugging cookie issues).
+ * Returns cookie metadata received by backend (for debugging cookie issues).
  */
 router.get("/debug-cookies", debugCookies);
 
