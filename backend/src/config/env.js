@@ -2,8 +2,11 @@
  * Required environment variables for API startup.
  */
 export function validateRequiredEnv() {
-  const required = ["JWT_SECRET", "REFRESH_TOKEN_SECRET", "MONGO_URI"];
+  const required = ["JWT_SECRET", "REFRESH_TOKEN_SECRET"];
   const missing = required.filter((key) => !process.env[key]?.trim());
+  if (!process.env.MONGO_URI?.trim() && !process.env.MONGODB_URI?.trim()) {
+    missing.push("MONGO_URI or MONGODB_URI");
+  }
 
   if (missing.length > 0) {
     console.error("[env] Missing required variables:", missing.join(", "));

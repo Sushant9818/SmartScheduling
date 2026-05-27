@@ -41,10 +41,12 @@ if [[ -z "$SERVICE_ID" ]]; then
   exit 1
 fi
 
-PAYLOAD=$(python3 << PY
+VARS_JSON=$(ENV_FILE="$ENV_FILE" python3 << 'PY'
 import json
+import os
 pairs = []
-with open("$ENV_FILE") as f:
+env_file = os.environ["ENV_FILE"]
+with open(env_file) as f:
     for line in f:
         line = line.strip()
         if not line or line.startswith("#"):
@@ -56,22 +58,37 @@ with open("$ENV_FILE") as f:
         if "localhost" in v and k == "MONGO_URI":
             raise SystemExit("MONGO_URI must be mongodb+srv (Atlas), not localhost")
         if "YOUR_" in v or "change_to" in v:
-            raise SystemExit(f"Replace placeholder value for {k} in $ENV_FILE")
-        pairs.append({"envVarKey": k, "envVarValue": v})
+            raise SystemExit(f"Replace placeholder value for {k} in {env_file}")
+        pairs.append({"key": k, "value": v})
 print(json.dumps(pairs))
 PY
 )
 
-echo "Updating env vars on $SERVICE_ID ..."
-curl -s -X PUT "https://api.render.com/v1/services/${SERVICE_ID}/env-vars" \
-  -H "Authorization: Bearer $API_KEY" \
-  -H "Content-Type: application/json" \
-  -d "$PAYLOAD"
+COUNT=$(VARS_JSON="$VARS_JSON" python3 -c 'import json, os; print(len(json.loads(os.environ["VARS_JSON"])))')
+echo "Updating $COUNT env var(s) on $SERVICE_ID ..."
+while IFS=$'\t' read -r key payload; do
+  [[ -z "$key" ]] && continue
+  echo "  - $key"
+  curl -fsS -X PUT "https://api.render.com/v1/services/${SERVICE_ID}/env-vars/${key}" \
+    -H "Authorization: Bearer $API_KEY" \
+    -H "Accept: application/json" \
+    -H "Content-Type: application/json" \
+    -d "$payload"
+  echo ""
+done < <(VARS_JSON="$VARS_JSON" python3 << 'PY'
+import json
+import os
+
+for item in json.loads(os.environ["VARS_JSON"]):
+    print(f"{item['key']}\t{json.dumps(item)}")
+PY
+)
 
 echo ""
 echo "Triggering deploy ..."
-curl -s -X POST "https://api.render.com/v1/services/${SERVICE_ID}/deploys" \
+curl -fsS -X POST "https://api.render.com/v1/services/${SERVICE_ID}/deploys" \
   -H "Authorization: Bearer $API_KEY" \
+  -H "Accept: application/json" \
   -H "Content-Type: application/json" \
   -d '{"clearCache":"clear"}'
 
