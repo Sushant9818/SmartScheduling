@@ -42,6 +42,12 @@ function scriptEnv(fakeCurl) {
   };
 }
 
+function requestBody(call) {
+  const bodyIndex = call.indexOf("-d") + 1;
+  assert.notEqual(bodyIndex, 0);
+  return JSON.parse(call[bodyIndex]);
+}
+
 test("set-render-mongo-uri updates only the MONGO_URI env var endpoint", () => {
   const fakeCurl = createFakeCurl();
   const script = path.join(scriptsDir, "set-render-mongo-uri.sh");
@@ -58,7 +64,7 @@ test("set-render-mongo-uri updates only the MONGO_URI env var endpoint", () => {
   assert.equal(calls.length, 2);
   assert.ok(calls[0].includes("https://api.render.com/v1/services/srv_test/env-vars/MONGO_URI"));
   assert.ok(!calls[0].includes("https://api.render.com/v1/services/srv_test/env-vars"));
-  assert.ok(calls[0].includes(`{"key":"MONGO_URI","value":"${uri}"}`));
+  assert.deepEqual(requestBody(calls[0]), { key: "MONGO_URI", value: uri });
   assert.ok(calls[1].includes("https://api.render.com/v1/services/srv_test/deploys"));
 });
 
