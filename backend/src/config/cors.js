@@ -1,12 +1,16 @@
 /**
  * CORS for local dev and production (Vercel frontend → Render API).
- * Set FRONTEND_URL in Render env (e.g. https://smart-scheduling-eta.vercel.app).
- * Optional ALLOWED_ORIGINS=comma,separated,urls for extra preview domains.
+ *
+ * Render env:
+ *   FRONTEND_URL=https://smart-scheduling-eta.vercel.app
+ *   ALLOWED_ORIGINS=https://other-preview.vercel.app (optional, comma-separated)
  */
 function parseAllowedOrigins() {
   const origins = new Set([
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
   ]);
 
   const frontend = process.env.FRONTEND_URL?.trim();
@@ -20,7 +24,26 @@ function parseAllowedOrigins() {
     }
   }
 
-  return [...origins];
+  return origins;
+}
+
+/** Vercel production + preview deployments (*.vercel.app) */
+function isVercelAppOrigin(origin) {
+  try {
+    const { protocol, hostname } = new URL(origin);
+    return protocol === "https:" && hostname.endsWith(".vercel.app");
+  } catch {
+    return false;
+  }
+}
+
+function isOriginAllowed(origin, allowed) {
+  const normalized = origin.replace(/\/$/, "");
+  if (allowed.has(normalized)) return true;
+  if (process.env.NODE_ENV === "production" && isVercelAppOrigin(normalized)) {
+    return true;
+  }
+  return false;
 }
 
 export function getCorsOptions() {
@@ -28,10 +51,9 @@ export function getCorsOptions() {
 
   return {
     origin(origin, callback) {
-      // Same-origin or non-browser (no Origin header)
       if (!origin) return callback(null, true);
-      const normalized = origin.replace(/\/$/, "");
-      if (allowed.includes(normalized)) return callback(null, true);
+      if (isOriginAllowed(origin, allowed)) return callback(null, true);
+      console.warn("[cors] blocked origin:", origin);
       callback(new Error(`CORS blocked origin: ${origin}`));
     },
     credentials: true,
@@ -43,7 +65,11 @@ export function getCorsOptions() {
 export function getSocketCorsOptions() {
   const allowed = parseAllowedOrigins();
   return {
-    origin: allowed,
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (isOriginAllowed(origin, allowed)) return callback(null, true);
+      callback(new Error(`CORS blocked origin: ${origin}`));
+    },
     credentials: true,
   };
 }

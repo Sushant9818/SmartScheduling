@@ -24,14 +24,19 @@ app.options("*", cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json());
 
-// ✅ health (GET /api/health returns { status: "ok" })
+// Health + root (used by Render healthCheckPath and frontend status badge)
 app.get("/api/health", (req, res) => {
-  res.json({ status: "ok" });
+  res.json({
+    status: "ok",
+    message: "Smart Scheduling API is running",
+  });
 });
 
-// ✅ root
 app.get("/", (req, res) => {
-  res.json({ message: "Smart Scheduling API running 🚀" });
+  res.json({
+    status: "ok",
+    message: "Smart Scheduling API is running",
+  });
 });
 
 // ✅ routes
