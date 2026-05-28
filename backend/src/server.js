@@ -15,13 +15,12 @@ import { validateRequiredEnv } from "./config/env.js";
 import { getSocketCorsOptions } from "./config/cors.js";
 import { Server } from "socket.io";
 
-const PORT = Number(process.env.PORT) || 5001;
+const PORT = Number(process.env.PORT) || 5000;
 
 validateRequiredEnv();
 
 async function startServer() {
   await connectDB();
-
   const server = http.createServer(app);
 
   const io = new Server(server, {
@@ -30,13 +29,18 @@ async function startServer() {
 
   // make io available in controllers: req.app.get("io")
   app.set("io", io);
+app.get("/", (req, res) => {
+  res.send("Backend is running");
+});
 
+app.get("/api/health", (req, res) => {
+  res.json({ status: "OK" });
+});
   io.on("connection", (socket) => {
     // Optional: join rooms by role / therapistId / clientId
     // socket.join("global");
     socket.on("disconnect", () => {});
   });
-
   server.listen(PORT, "0.0.0.0", () => {
     console.log(`API listening on port ${PORT}`);
   });
