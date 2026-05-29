@@ -28,7 +28,7 @@ Redeploy after saving. Without this, the UI calls localhost and shows **Disconne
 
 Optional: `ALLOWED_ORIGINS` for extra preview URLs (comma-separated).
 
-CORS allows `localhost:3000`, `localhost:5173`, `FRONTEND_URL`, and `*.vercel.app` in production.
+CORS allows `localhost:3000`, `localhost:5173`, `FRONTEND_URL`, and any explicit URLs listed in `ALLOWED_ORIGINS`.
 
 ## Verify
 
