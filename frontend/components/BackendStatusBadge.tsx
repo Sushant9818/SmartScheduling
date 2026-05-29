@@ -2,6 +2,7 @@
 
 import { useHealth } from "@/hooks";
 import { Badge } from "@/components/ui/badge";
+import { API_BASE_URL, isProductionApiMisconfigured } from "@/lib/config";
 import { Wifi, WifiOff } from "lucide-react";
 
 /**
@@ -10,7 +11,11 @@ import { Wifi, WifiOff } from "lucide-react";
  */
 export function BackendStatusBadge() {
   const { data, isPending, isError } = useHealth();
-  const connected = !isPending && !isError && data?.status === "ok";
+  const connected =
+    !isPending &&
+    !isError &&
+    typeof data?.status === "string" &&
+    data.status.toLowerCase() === "ok";
 
   if (isPending) {
     return (
@@ -30,9 +35,18 @@ export function BackendStatusBadge() {
     );
   }
 
+  const misconfigured = isProductionApiMisconfigured();
+  const hint = misconfigured
+    ? "Set VITE_API_URL (or NEXT_PUBLIC_API_BASE_URL) on Vercel to https://YOUR-SERVICE.onrender.com/api and redeploy."
+    : `Cannot reach API at ${API_BASE_URL || "(not set)"}. Start backend locally on :5000 or point VITE_API_URL to Render.`;
+
   return (
-    <Badge variant="destructive" className="gap-1" title="Backend Disconnected">
-      <WifiOff className="h-3 w-3" />
+    <Badge
+      variant="destructive"
+      className="gap-1 max-w-[280px] truncate"
+      title={hint}
+    >
+      <WifiOff className="h-3 w-3 shrink-0" />
       Disconnected
     </Badge>
   );

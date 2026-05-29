@@ -1,6 +1,6 @@
 # Render Blueprint — Smart Scheduling API (Node/Express in backend/)
 # Dashboard: https://dashboard.render.com
-# After deploy, set NEXT_PUBLIC_API_BASE_URL on Vercel to https://<your-service>.onrender.com/api
+# After deploy, set VITE_API_URL on Vercel to https://<your-service>.onrender.com/api
 
 services:
   - type: web

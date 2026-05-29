@@ -40,9 +40,8 @@ function isVercelAppOrigin(origin) {
 function isOriginAllowed(origin, allowed) {
   const normalized = origin.replace(/\/$/, "");
   if (allowed.has(normalized)) return true;
-  if (process.env.NODE_ENV === "production" && isVercelAppOrigin(normalized)) {
-    return true;
-  }
+  // Allow all Vercel deployments (production + preview), local and Render
+  if (isVercelAppOrigin(normalized)) return true;
   return false;
 }
 

@@ -1,18 +1,56 @@
 /**
- * Centralized API configuration. No hardcoded URLs in app code.
+ * Centralized API base URL for all frontend HTTP calls.
  *
- * - Single source: process.env.NEXT_PUBLIC_API_BASE_URL (set in .env.local).
- * - Place .env.local in the frontend root (same folder as package.json).
- * - API_BASE_URL must include /api (e.g. http://localhost:5001/api for Node backend).
- * - Paths in lib/api.ts are relative without /api (e.g. /auth/me, /health, /sessions).
+ * Set on Vercel (Production + Preview):
+ *   VITE_API_URL=https://your-service.onrender.com/api
+ *   — or —
+ *   NEXT_PUBLIC_API_BASE_URL=https://your-service.onrender.com/api
  *
- * Backend port is in backend/.env (PORT=5001). Keep this default in sync.
+ * Local dev: copy frontend/.env.example → .env.local (defaults to http://localhost:5000/api).
  */
+
+const DEV_FALLBACK = "http://localhost:5000/api";
+
+function normalizeApiBaseUrl(raw: string): string {
+  const trimmed = raw.trim().replace(/\/+$/, "");
+  if (!trimmed) return "";
+  if (trimmed.endsWith("/api")) return trimmed;
+  return `${trimmed}/api`;
+}
+
+function readEnvUrl(): string | undefined {
+  const candidates = [
+    process.env.NEXT_PUBLIC_API_BASE_URL,
+    process.env.NEXT_PUBLIC_VITE_API_URL,
+  ];
+  for (const value of candidates) {
+    if (value && typeof value === "string" && value.trim()) {
+      return normalizeApiBaseUrl(value);
+    }
+  }
+  return undefined;
+}
+
 function getApiBaseUrl(): string {
-  if (typeof process === "undefined") return "";
-  const env = process.env.NEXT_PUBLIC_API_BASE_URL;
-  if (env && typeof env === "string" && env.trim()) return env.trim();
-  return "http://localhost:5001/api";
+  const fromEnv = readEnvUrl();
+  if (fromEnv) return fromEnv;
+
+  if (process.env.NODE_ENV !== "production") {
+    return DEV_FALLBACK;
+  }
+
+  return "";
 }
 
 export const API_BASE_URL = getApiBaseUrl();
+
+/** True when a production build has no Render API URL configured. */
+export function isProductionApiMisconfigured(): boolean {
+  if (typeof window === "undefined") return false;
+  if (process.env.NODE_ENV !== "production") return false;
+  if (!API_BASE_URL) return true;
+  return (
+    API_BASE_URL.includes("localhost") ||
+    API_BASE_URL.includes("127.0.0.1")
+  );
+}
