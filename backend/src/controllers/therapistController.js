@@ -1,5 +1,11 @@
 import Therapist from "../models/Therapist.js";
 
+function canManageTherapist(req, therapistId) {
+  if (req.user?.role === "admin") return true;
+  if (req.user?.role !== "therapist") return false;
+  return String(req.user.therapistId || req.user.therapist || "") === String(therapistId);
+}
+
 export async function createTherapist(req, res) {
   try {
     const therapist = await Therapist.create(req.body);
@@ -30,6 +36,10 @@ export async function getTherapistById(req, res) {
 
 export async function updateAvailability(req, res) {
   try {
+    if (!canManageTherapist(req, req.params.id)) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
     const { weeklyAvailability } = req.body;
     const therapist = await Therapist.findByIdAndUpdate(
       req.params.id,
@@ -45,6 +55,10 @@ export async function updateAvailability(req, res) {
 
 export async function addTimeOff(req, res) {
   try {
+    if (!canManageTherapist(req, req.params.id)) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
     const { start, end, reason } = req.body;
     const therapist = await Therapist.findById(req.params.id);
     if (!therapist) return res.status(404).json({ message: "Therapist not found" });

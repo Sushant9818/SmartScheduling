@@ -1,5 +1,11 @@
 import Client from "../models/Client.js";
 
+function canAccessClient(req, clientId) {
+  if (req.user?.role === "admin") return true;
+  if (req.user?.role !== "client") return false;
+  return String(req.user.clientId || req.user.client || "") === String(clientId);
+}
+
 export async function createClient(req, res) {
   try {
     const client = await Client.create(req.body);
@@ -20,6 +26,10 @@ export async function listClients(req, res) {
 
 export async function getClientById(req, res) {
   try {
+    if (!canAccessClient(req, req.params.id)) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
     const client = await Client.findById(req.params.id);
     if (!client) return res.status(404).json({ message: "Client not found" });
     res.json(client);
@@ -30,6 +40,10 @@ export async function getClientById(req, res) {
 
 export async function updateClientPreferences(req, res) {
   try {
+    if (!canAccessClient(req, req.params.id)) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
     const { preferences } = req.body;
     const client = await Client.findByIdAndUpdate(
       req.params.id,
