@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Set MONGO_URI on a Render web service and trigger a deploy.
+# Set MONGO_URI on a Render web service and trigger a deploy without replacing
+# any other environment variables.
 # Usage:
 #   export RENDER_API_KEY="rnd_..."
 #   ./backend/scripts/set-render-mongo-uri.sh 'mongodb+srv://user:pass@cluster.../smart-scheduling?retryWrites=true&w=majority'
@@ -47,18 +48,20 @@ if [[ -z "$SERVICE_ID" ]]; then
   exit 1
 fi
 
-PAYLOAD=$(MONGO_URI="$URI" python3 -c 'import json,os; print(json.dumps([{"envVarKey":"MONGO_URI","envVarValue":os.environ["MONGO_URI"]}]))')
+PAYLOAD=$(MONGO_URI="$URI" python3 -c 'import json,os; print(json.dumps({"value":os.environ["MONGO_URI"]}))')
 
 echo "Updating MONGO_URI on $SERVICE_ID ..."
-curl -s -X PUT "https://api.render.com/v1/services/${SERVICE_ID}/env-vars" \
+curl -fsS -X PUT "https://api.render.com/v1/services/${SERVICE_ID}/env-vars/MONGO_URI" \
   -H "Authorization: Bearer $API_KEY" \
+  -H "Accept: application/json" \
   -H "Content-Type: application/json" \
   -d "$PAYLOAD"
 
 echo ""
 echo "Triggering deploy ..."
-curl -s -X POST "https://api.render.com/v1/services/${SERVICE_ID}/deploys" \
+curl -fsS -X POST "https://api.render.com/v1/services/${SERVICE_ID}/deploys" \
   -H "Authorization: Bearer $API_KEY" \
+  -H "Accept: application/json" \
   -H "Content-Type: application/json" \
   -d '{"clearCache":"clear"}'
 
