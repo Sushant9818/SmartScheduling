@@ -1,5 +1,5 @@
 /**
- * CORS for local dev and production (Vercel frontend → Render API).
+ * CORS for local dev and production (Vercel frontend -> Render API).
  *
  * Render env:
  *   FRONTEND_URL=https://smart-scheduling-eta.vercel.app
@@ -27,21 +27,9 @@ function parseAllowedOrigins() {
   return origins;
 }
 
-/** Vercel production + preview deployments (*.vercel.app) */
-function isVercelAppOrigin(origin) {
-  try {
-    const { protocol, hostname } = new URL(origin);
-    return protocol === "https:" && hostname.endsWith(".vercel.app");
-  } catch {
-    return false;
-  }
-}
-
 function isOriginAllowed(origin, allowed) {
   const normalized = origin.replace(/\/$/, "");
   if (allowed.has(normalized)) return true;
-  // Allow all Vercel deployments (production + preview), local and Render
-  if (isVercelAppOrigin(normalized)) return true;
   return false;
 }
 
