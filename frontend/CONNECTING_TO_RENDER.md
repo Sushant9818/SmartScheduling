@@ -26,9 +26,9 @@ Redeploy after saving. Without this, the UI calls localhost and shows **Disconne
 | `REFRESH_TOKEN_SECRET` | different long random string |
 | `FRONTEND_URL` | `https://smart-scheduling-eta.vercel.app` |
 
-Optional: `ALLOWED_ORIGINS` for extra preview URLs (comma-separated).
+Optional: `ALLOWED_ORIGINS` for trusted preview URLs (comma-separated).
 
-CORS allows `localhost:3000`, `localhost:5173`, `FRONTEND_URL`, and `*.vercel.app` in production.
+CORS allows `localhost:3000`, `localhost:5173`, `FRONTEND_URL`, and any URLs explicitly listed in `ALLOWED_ORIGINS`.
 
 ## Verify
 
