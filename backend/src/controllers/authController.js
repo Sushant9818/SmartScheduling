@@ -172,10 +172,8 @@ export async function login(req, res) {
     const token = signAccessToken(user);
     await issueRefreshToken(user, res);
 
-    // Temporary debug: confirm Set-Cookie is present on login response.
-    const setCookieHeader = res.getHeader("set-cookie");
-    console.log("[auth] login set-cookie:", setCookieHeader ?? "(none)");
     if (process.env.NODE_ENV !== "production") {
+      const setCookieHeader = res.getHeader("set-cookie");
       console.debug("[auth] login: Access token issued, refreshToken cookie being set");
       if (setCookieHeader) {
         const headerStr = Array.isArray(setCookieHeader) ? setCookieHeader.join("; ") : String(setCookieHeader);
@@ -331,11 +329,12 @@ export async function me(req, res) {
 
 /**
  * Debug route: GET /api/auth/debug-cookies
- * Returns cookies and raw cookie header for debugging.
+ * Returns cookie metadata only. Never echo cookie values or raw Cookie headers.
  */
 export async function debugCookies(req, res) {
+  const cookieNames = Object.keys(req.cookies || {});
   return res.json({
-    cookieHeader: req.headers.cookie || null,
-    cookies: req.cookies || {},
+    cookieNames,
+    hasRefreshToken: cookieNames.includes("refreshToken"),
   });
 }

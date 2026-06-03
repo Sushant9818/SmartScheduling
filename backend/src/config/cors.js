@@ -27,21 +27,9 @@ function parseAllowedOrigins() {
   return origins;
 }
 
-/** Vercel production + preview deployments (*.vercel.app) */
-function isVercelAppOrigin(origin) {
-  try {
-    const { protocol, hostname } = new URL(origin);
-    return protocol === "https:" && hostname.endsWith(".vercel.app");
-  } catch {
-    return false;
-  }
-}
-
 function isOriginAllowed(origin, allowed) {
   const normalized = origin.replace(/\/$/, "");
   if (allowed.has(normalized)) return true;
-  // Allow all Vercel deployments (production + preview), local and Render
-  if (isVercelAppOrigin(normalized)) return true;
   return false;
 }
 
