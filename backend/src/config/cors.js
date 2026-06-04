@@ -4,6 +4,9 @@
  * Render env:
  *   FRONTEND_URL=https://smart-scheduling-eta.vercel.app
  *   ALLOWED_ORIGINS=https://other-preview.vercel.app (optional, comma-separated)
+ *
+ * Keep this list explicit: credentialed CORS plus SameSite=None refresh cookies
+ * would let any trusted origin call /api/auth/refresh and read access tokens.
  */
 function parseAllowedOrigins() {
   const origins = new Set([
@@ -27,21 +30,9 @@ function parseAllowedOrigins() {
   return origins;
 }
 
-/** Vercel production + preview deployments (*.vercel.app) */
-function isVercelAppOrigin(origin) {
-  try {
-    const { protocol, hostname } = new URL(origin);
-    return protocol === "https:" && hostname.endsWith(".vercel.app");
-  } catch {
-    return false;
-  }
-}
-
 function isOriginAllowed(origin, allowed) {
   const normalized = origin.replace(/\/$/, "");
   if (allowed.has(normalized)) return true;
-  // Allow all Vercel deployments (production + preview), local and Render
-  if (isVercelAppOrigin(normalized)) return true;
   return false;
 }
 
