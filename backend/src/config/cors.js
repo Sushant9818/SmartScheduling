@@ -5,7 +5,7 @@
  *   FRONTEND_URL=https://smart-scheduling-eta.vercel.app
  *   ALLOWED_ORIGINS=https://other-preview.vercel.app (optional, comma-separated)
  */
-function parseAllowedOrigins() {
+export function parseAllowedOrigins() {
   const origins = new Set([
     "http://localhost:3000",
     "http://127.0.0.1:3000",
@@ -27,21 +27,9 @@ function parseAllowedOrigins() {
   return origins;
 }
 
-/** Vercel production + preview deployments (*.vercel.app) */
-function isVercelAppOrigin(origin) {
-  try {
-    const { protocol, hostname } = new URL(origin);
-    return protocol === "https:" && hostname.endsWith(".vercel.app");
-  } catch {
-    return false;
-  }
-}
-
-function isOriginAllowed(origin, allowed) {
+export function isOriginAllowed(origin, allowed) {
   const normalized = origin.replace(/\/$/, "");
   if (allowed.has(normalized)) return true;
-  // Allow all Vercel deployments (production + preview), local and Render
-  if (isVercelAppOrigin(normalized)) return true;
   return false;
 }
 
