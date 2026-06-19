@@ -32,8 +32,8 @@ export default function AuthDebugPage() {
       setDebugCookiesResult(
         JSON.stringify(
           {
-            cookieNames: Object.keys(res.data.cookies || {}),
-            hasRefreshToken: "refreshToken" in (res.data.cookies || {}),
+            cookieNames: res.data.cookieNames,
+            hasRefreshToken: res.data.hasRefreshToken,
           },
           null,
           2
