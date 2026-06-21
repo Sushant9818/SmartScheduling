@@ -10,7 +10,7 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
-    "postinstall": "node -e \"if (!process.env.VERCEL) { require('child_process').execSync('npx playwright install chromium', { stdio: 'inherit' }); }\""
+    "postinstall": "node -e \"if (!process.env.VERCEL) { process.env.PLAYWRIGHT_BROWSERS_PATH = require('path').join(process.cwd(), 'node_modules', '.playwright-browsers'); require('child_process').execSync('npx playwright install chromium', { stdio: 'inherit' }); }\""
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.2",
