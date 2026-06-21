@@ -2,15 +2,20 @@
  * Required environment variables for API startup.
  */
 export function validateRequiredEnv() {
-  const required = ["JWT_SECRET", "REFRESH_TOKEN_SECRET", "MONGO_URI"];
+  const required = ["JWT_SECRET", "REFRESH_TOKEN_SECRET"];
   const missing = required.filter((key) => !process.env[key]?.trim());
+  const hasMongoUri = Boolean((process.env.MONGO_URI || process.env.MONGODB_URI || "").trim());
+
+  if (!hasMongoUri) {
+    missing.push("MONGO_URI or MONGODB_URI");
+  }
 
   if (missing.length > 0) {
     console.error("[env] Missing required variables:", missing.join(", "));
     if (process.env.NODE_ENV === "production") {
       console.error(
         "[env] Fix: cd backend && npm run setup:render-env\n" +
-          "[env]     Edit render.env (set MONGO_URI), then Render → Environment → Add from .env\n" +
+          "[env]     Edit render.env (set MONGO_URI or MONGODB_URI), then Render -> Environment -> Add from .env\n" +
           "[env]     Guide: backend/TROUBLESHOOTING_DEPLOY.md"
       );
     } else {
