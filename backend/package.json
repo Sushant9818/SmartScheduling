@@ -10,6 +10,7 @@
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
     "build": "echo Build complete",
+    "test": "node --test src/**/*.test.js",
     "setup:render-env": "node scripts/generate-render-env.js"
   },
   "dependencies": {
